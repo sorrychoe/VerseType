@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "하늘소리 암송말씀",
+    "slug": "bible-memorize",
+    "version": "1.0.0",
+    "scheme": "bible-memorize",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.heavensvoicechurch.biblememorize"
+    },
+    "android": {
+      "softwareKeyboardLayoutMode": "resize",
+      "package": "com.heavensvoicechurch.biblememorize"
+    },
+    "icon": "./assets/word-icon.png",
+    "description": "하늘소리교회에서 만든 이달의 성경 암송 말씀 타이핑 앱",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bc89693c-07f6-4453-97f0-b85adf7d5a18"
+      }
+    },
+    "owner": "sorrychoe"
+  }
+}

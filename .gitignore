@@ -1,0 +1,16 @@
+node_modules/
+.expo/
+dist/
+.env
+*.tsbuildinfo
+artifacts/
+builds.json
+builds.tsv
+build.json
+credentials.json
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+docs/
