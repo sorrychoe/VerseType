@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { checkConfig, checkContentUrl } from './check-release.mjs';
+import { checkConfig } from './check-release.mjs';
 const projectId = '12345678-1234-1234-1234-123456789abc';
 const app = { android: { package: 'org.example.bible' }, ios: { bundleIdentifier: 'org.example.bible' }, extra: { eas: { projectId } } };
 test('선택한 플랫폼의 배포 설정 누락을 빌드 전에 발견한다', () => {
@@ -11,9 +11,12 @@ test('선택한 플랫폼의 배포 설정 누락을 빌드 전에 발견한다'
   for (const invalid of [{}, { ...app, android: {} }, { ...app, ios: {} }, { ...app, extra: {} }]) assert.throws(() => checkConfig(invalid));
   assert.throws(() => checkConfig(app, 'unknown'));
 });
-test('배포 앱에 포함할 공개 HTTPS URL을 검증한다', () => {
-  checkContentUrl('https://example.org/verses.json');
-  for (const url of [undefined, '', 'http://example.org', 'https://user:password@example.org']) assert.throws(() => checkContentUrl(url));
+test('콘텐츠 URL 없이 배포 설정을 검사하고 dotenv 로딩을 비활성화한다', () => {
+  checkConfig(app);
+  const config = JSON.parse(readFileSync(new URL('../eas.json', import.meta.url), 'utf8'));
+  assert.equal(config.build.release.env.EXPO_NO_DOTENV, '1');
+  const workflow = readFileSync(new URL('../.github/workflows/build.yml', import.meta.url), 'utf8');
+  assert.ok(!workflow.includes('--content-url'));
 });
 test('GitHub 배포는 설치 가능한 APK와 실제 기기 IPA만 생성한다', () => {
   const config = JSON.parse(readFileSync(new URL('../eas.json', import.meta.url), 'utf8'));

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { bundledContent, completeVerse, currentVerse, loadVerses, monthKey, monthButtons, pastVerses, readProgress, validateContent, type Content, type Storage } from './verses';
+import { bundledContent, completeVerse, currentVerse, monthKey, monthButtons, pastVerses, readProgress, validateContent, type Content, type Storage } from './verses';
 
 function memory(initial: Record<string, string> = {}): Storage {
   const data = new Map(Object.entries(initial));
@@ -11,7 +11,6 @@ const content: Content = { version: 2, verses: [
   { month: '2026-01', reference: '구절2', text: '말씀2' },
   { month: '2026-03', reference: '구절3', text: '말씀3' },
 ] };
-const request = (value: unknown, status = 200) => (async () => new Response(JSON.stringify(value), { status })) as typeof fetch;
 
 test('연말 → 새해: 로컬 연월로 이달과 지난달 판정', () => {
   const date = new Date(2026, 0, 1, 0, 0);
@@ -41,49 +40,17 @@ test('콘텐츠의 월, 중복, 빈 본문, 주소, 버전을 검증한다', () 
     { ...content, verses: [{ ...content.verses[0], reference: '' }] },
   ]) assert.throws(() => validateContent(invalid));
 });
-test('오프라인 첫 실행은 이미 표시된 번들을 유지한다', async () => {
-  const updates: Content[] = [];
-  await loadVerses(memory(), 'https://example.test/verses.json', value => updates.push(value), async () => { throw new Error('offline'); });
-  assert.equal(updates.length, 0);
-  assert.equal(bundledContent.verses.length, 12);
-});
-test('캐시를 먼저 표시하고 원격 성공 후 갱신 및 저장한다', async () => {
-  const remote = { ...content, version: 3 };
-  const storage = memory({ verses_cache: JSON.stringify(content) });
-  const updates: Content[] = [];
-  await loadVerses(storage, 'https://example.test/verses.json', value => updates.push(value), request(remote));
-  assert.deepEqual(updates.map(value => value.version), [2, 3]);
-  assert.deepEqual(JSON.parse((await storage.getItem('verses_cache'))!), remote);
-});
-test('캐시가 손상되어도 유효한 원격 콘텐츠로 복구한다', async () => {
-  const updates: Content[] = [];
-  await loadVerses(memory({ verses_cache: 'broken' }), 'https://example.test/verses.json', value => updates.push(value), request(content));
-  assert.deepEqual(updates, [content]);
-});
-test('네트워크 오류, 잘못된 JSON 스키마, HTTP 오류에서 캐시 유지', async () => {
-  for (const fetcher of [request({}), request(content, 500), (async () => { throw new Error('offline'); }) as typeof fetch]) {
-    const updates: Content[] = [];
-    await loadVerses(memory({ verses_cache: JSON.stringify(content) }), 'https://example.test/verses.json', value => updates.push(value), fetcher);
-    assert.deepEqual(updates, [content]);
+test('번들에는 연도별 12개월이 있고 새해 데이터 미설치 시 최근 말씀을 표시한다', () => {
+  validateContent(bundledContent);
+  const years = [...new Set(bundledContent.verses.map(v => v.month.slice(0, 4)))];
+  for (const year of years) {
+    assert.deepEqual(bundledContent.verses.filter(v => v.month.startsWith(year + '-')).map(v => v.month).sort(),
+      Array.from({ length: 12 }, (_, i) => `${year}-${String(i + 1).padStart(2, '0')}`));
   }
-});
-test('캐시보다 오래된 원격 버전으로 되돌리지 않는다', async () => {
-  const updates: Content[] = [];
-  await loadVerses(memory({ verses_cache: JSON.stringify({ ...content, version: 9 }) }), 'https://example.test/verses.json', value => updates.push(value), request(content));
-  assert.deepEqual(updates.map(value => value.version), [9]);
-});
-test('저장소가 고장나도 원격 콘텐츠는 화면에 표시한다', async () => {
-  const storage: Storage = { async getItem() { throw new Error('read'); }, async setItem() { throw new Error('write'); } };
-  const updates: Content[] = [];
-  await loadVerses(storage, 'https://example.test/verses.json', value => updates.push(value), request(content));
-  assert.deepEqual(updates, [content]);
-});
-test('URL 미설정 또는 HTTP 주소이면 네트워크 요청하지 않는다', async () => {
-  for (const url of [undefined, '', 'http://example.test/data']) {
-    let calls = 0;
-    await loadVerses(memory(), url, () => {}, (async () => { calls++; return new Response(); }) as typeof fetch);
-    assert.equal(calls, 0);
-  }
+  const lastYear = Math.max(...years.map(Number));
+  const result = currentVerse(bundledContent, new Date(lastYear + 1, 0, 1));
+  assert.equal(result.fallback, true);
+  assert.equal(result.verse?.month, `${lastYear}-12`);
 });
 test('완료 횟수와 시각을 저장하고 연속 완료를 잃지 않는다', async () => {
   const storage = memory();

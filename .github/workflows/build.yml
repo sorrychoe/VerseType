@@ -35,8 +35,6 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-      - name: Check remote content URL
-        run: eas env:exec production 'node scripts/check-release.mjs --content-url' --non-interactive
       - name: Build signed install files on EAS
         run: eas build --platform "$PLATFORM" --profile release --non-interactive --wait --json > builds.json
       - name: Download install files

@@ -55,32 +55,6 @@ export function monthLabel(month: string) {
   return `${year}년 ${Number(number)}월 암송 말씀`;
 }
 
-export async function loadVerses(storage: Storage, url: string | undefined, publish: (content: Content) => void, request: typeof fetch = fetch) {
-  let latest = bundledContent;
-  try {
-    const raw = await storage.getItem('verses_cache');
-    if (raw) {
-      const cached: unknown = JSON.parse(raw);
-      validateContent(cached);
-      if (cached.version >= latest.version) { latest = cached; publish(cached); }
-    }
-  } catch { /* 손상된 캐시나 저장소 오류에도 번들로 시작한다. */ }
-  if (!url || !url.startsWith('https://')) return;
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
-  try {
-    const response = await request(url, { signal: controller.signal, cache: 'no-store' });
-    if (!response.ok) throw new Error('콘텐츠 다운로드 실패');
-    const remote: unknown = await response.json();
-    validateContent(remote);
-    if (remote.version >= latest.version) {
-      publish(remote);
-      await storage.setItem('verses_cache', JSON.stringify(remote));
-    }
-  } catch { /* 원격 또는 캐시 쓰기 실패 시 현재 말씀을 유지한다. */ }
-  finally { clearTimeout(timeout); }
-}
-
 export type Progress = { count: number; lastCompletedAt: string | null };
 export async function readProgress(storage: Storage, month: string): Promise<Progress> {
   const raw = await storage.getItem(`progress:${month}`);
