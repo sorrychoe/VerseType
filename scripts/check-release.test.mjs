@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { spawnSync } from 'node:child_process';
 import { checkConfig } from './check-release.mjs';
 const projectId = '12345678-1234-1234-1234-123456789abc';
 const app = { android: { package: 'org.example.bible' }, ios: { bundleIdentifier: 'org.example.bible' }, extra: { eas: { projectId } } };
@@ -35,4 +36,18 @@ test('로컬 빌드 명령은 release 프로필로 APK·IPA를 로컬에 생성�
     assert.ok(command.includes(`PLATFORM=${platform} node scripts/check-release.mjs`));
     assert.ok(command.includes(`--platform ${platform} --profile release --local --output artifacts/bible-memorize.${extension}`));
   }
+});
+
+test('CI 인증 토큰이 없으면 안내하고 중단하며 토큰 값을 출력하지 않는다', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/build.yml', import.meta.url), 'utf8');
+  const guard = workflow.split('      - name: Check Expo token\n')[1].split('      - uses:')[0];
+  const script = guard.split('        run: |\n')[1];
+  for (const token of ['', 'test-token-not-a-real-credential']) {
+    const result = spawnSync('sh', ['-c', script], { env: { EXPO_TOKEN: token }, encoding: 'utf8' });
+    assert.equal(result.status, token ? 0 : 1);
+    if (token) assert.equal(result.stdout + result.stderr, '');
+    else assert.match(result.stdout, /EXPO_TOKEN is missing/);
+  }
+  const build = workflow.split('      - name: Build signed install files on EAS\n')[1].split('      - name:')[0];
+  assert.ok(build.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));
 });
