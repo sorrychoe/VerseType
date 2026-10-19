@@ -4,35 +4,32 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "EXPO_NO_DOTENV=1 expo start --web",
     "test": "tsx --test lib/*.test.ts scripts/*.test.mjs",
     "check:content": "tsx scripts/check-content.ts",
     "typecheck": "tsc --noEmit",
     "check": "npm test && npm run check:content && npm run typecheck",
-    "build:android:local": "npm run check && PLATFORM=android node scripts/check-release.mjs && mkdir -p artifacts && npx --yes eas-cli@latest build --platform android --profile release --local --output artifacts/bible-memorize.apk",
-    "build:ios:local": "npm run check && PLATFORM=ios node scripts/check-release.mjs && mkdir -p artifacts && npx --yes eas-cli@latest build --platform ios --profile release --local --output artifacts/bible-memorize.ipa"
+    "build:web": "EXPO_NO_DOTENV=1 expo export --platform web && node scripts/pwa.mjs && node scripts/check-web.mjs"
   },
   "dependencies": {
+    "@expo/metro-runtime": "~55.0.12",
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~55.0.0",
     "expo-constants": "~55.0.17",
     "expo-font": "~55.0.8",
     "expo-linking": "~55.0.17",
     "expo-router": "~55.0.18",
-    "expo-status-bar": "~55.0.6",
-    "expo-system-ui": "~55.0.22",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.10",
     "react-native-safe-area-context": "~5.6.2",
-    "react-native-screens": "~4.23.0"
+    "react-native-screens": "~4.23.0",
+    "react-native-web": "^0.21.0"
   },
   "devDependencies": {
-    "typescript": "~5.9.2",
-    "tsx": "^4.20.0",
     "@types/node": "^22.0.0",
-    "@types/react": "~19.2.2"
+    "@types/react": "~19.2.2",
+    "tsx": "^4.20.0",
+    "typescript": "~5.9.2"
   }
 }

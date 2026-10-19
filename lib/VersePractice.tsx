@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { compare } from './compare';
 import { saveAttendance, useAttendance } from './attendance';
 import { completeVerse, readProgress, type Progress, type Verse } from './verses';
@@ -77,7 +77,6 @@ export default function VersePractice({ verse, past = false, hidden, onHiddenCha
     setSaveStatus('idle');
     field.current?.focus();
   };
-  // past: 화면 전체가 스크롤되도록 바깥 ScrollView에 맡긴다.
   const body = <>
     <View style={styles.row}>
       <Text style={styles.label}>가리고 쓰기</Text>
@@ -93,8 +92,9 @@ export default function VersePractice({ verse, past = false, hidden, onHiddenCha
         {hidden && !input ? <Text style={styles.faint}>말씀을 기억하며 입력하세요.</Text> : null}
       </Text>
     </View>
+    <Text style={styles.hint}>키보드가 나타나지 않으면 아래 입력창을 눌러 주세요.</Text>
     <Text nativeID="input-label" style={styles.label}>말씀 입력</Text>
-    <TextInput ref={field} autoFocus multiline value={input} onChangeText={value => {
+    <TextInput ref={field} autoFocus multiline scrollEnabled={false} value={input} onChangeText={value => {
       if (awarded.current) return;
       if (compare(verse.text, value).complete) completedAt.current = new Date();
       setInput(value);
@@ -112,9 +112,7 @@ export default function VersePractice({ verse, past = false, hidden, onHiddenCha
     {saveStatus === 'error' && <Action label="저장 다시 시도" onPress={() => void save()} />}
     <Action label="다시 쓰기" onPress={reset} disabled={saveStatus === 'saving' || saveStatus === 'error'} />
   </>;
-  return past
-    ? <View style={styles.practice}>{body}</View>
-    : <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.practice} keyboardShouldPersistTaps="handled">{body}</ScrollView>;
+  return <View style={styles.practice}>{body}</View>;
 }
 
 export const styles = StyleSheet.create({

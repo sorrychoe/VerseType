@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import VersePractice, { Action, ChurchBrand, styles } from '../lib/VersePractice';
 import { monthButtons, monthKey, monthLabel, pastVerses, useVerses } from '../lib/verses';
@@ -14,7 +14,7 @@ export default function PastScreen() {
   const verses = pastVerses(content, today);
   const verse = (selected?.period === current ? verses.find(v => v.month === selected.month) : undefined) ?? verses.at(-1);
   return <SafeAreaView style={styles.screen}>
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <View style={styles.container}>
       <ScrollView keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <ChurchBrand />
@@ -35,6 +35,6 @@ export default function PastScreen() {
         </View>
         {verse ? <VersePractice key={`${verse.month}:${verse.text}`} verse={verse} past hidden={hidden} onHiddenChange={setHidden} /> : <Text style={styles.hint}>아직 등록된 지난달 말씀이 없습니다.</Text>}
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   </SafeAreaView>;
 }

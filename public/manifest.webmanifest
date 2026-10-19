@@ -1,0 +1,19 @@
+{
+  "name": "하늘소리 암송말씀",
+  "short_name": "암송말씀",
+  "lang": "ko",
+  "start_url": "/VerseType/",
+  "scope": "/VerseType/",
+  "display": "standalone",
+  "background_color": "#f7f6f0",
+  "theme_color": "#436857",
+  "icons": [
+    {
+      "src": "/VerseType/icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "id": "/VerseType/"
+}
