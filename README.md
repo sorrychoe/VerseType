@@ -5,7 +5,7 @@
 [VerseType GitHub 저장소](https://github.com/sorrychoe/VerseType)의 Releases에 설치 파일이 게시되어 있으면 내려받습니다. 테스트 파일은 Actions의 **Build and distribute app** 실행 결과에서 **Artifacts → install-files**를 받아 압축을 풉니다. 아티팩트 다운로드에는 GitHub 로그인이 필요할 수 있습니다.
 
 - **Android:** `.apk` 파일을 휴대폰에 내려받아 엽니다. 요청되면 사용한 브라우저나 파일 앱의 앱 설치 권한을 허용하고 설치합니다.
-- **iPhone:** 서명에 등록된 iPhone만 설치할 수 있습니다. `.ipa` 파일을 Mac에 내려받고 iPhone을 연결한 뒤 Apple Configurator의 **Add → Apps → Choose from my Mac**에서 설치합니다. 기기에서 요청하면 개발자 모드를 활성화합니다.
+- **iPhone:** 현재 iOS 배포는 준비 중이며 설치 파일을 제공하지 않습니다.
 
 ## 이달 말씀 타이핑
 

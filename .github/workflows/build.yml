@@ -1,25 +1,20 @@
 name: Build and distribute app
 on:
   workflow_dispatch:
-    inputs:
-      platform:
-        type: choice
-        options: [android, ios, all]
-        default: android
-        required: true
   push:
-    branches: [main] 
+    branches: [main]
+    tags: ['v*']
 permissions:
   contents: read
 concurrency:
-  group: build-${{ github.ref }}-${{ inputs.platform || 'all' }}
+  group: build-${{ github.ref }}-android
   cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
-      PLATFORM: ${{ inputs.platform || 'all' }}
+      PLATFORM: android
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,19 +45,17 @@ jobs:
       - name: Download install files
         run: |
           mkdir -p artifacts
-          jq -e 'length > 0 and all(.[]; .status == "FINISHED" and .distribution == "INTERNAL" and (.platform == "ANDROID" or .platform == "IOS") and (.artifacts.buildUrl | startswith("https://")))' builds.json
+          jq -e 'length > 0 and all(.[]; .status == "FINISHED" and .distribution == "INTERNAL" and (.platform == "ANDROID") and (.artifacts.buildUrl | startswith("https://")))' builds.json
           jq -r '.[] | [.platform, .id, .artifacts.buildUrl] | @tsv' builds.json > builds.tsv
           while IFS=$'\t' read -r platform id url; do
-            extension=ipa
-            if [ "$platform" = ANDROID ]; then extension=apk; fi
-            curl --fail --location --retry 3 --proto '=https' --proto-redir '=https' "$url" -o "artifacts/$platform-$id.$extension"
+            curl --fail --location --retry 3 --proto '=https' --proto-redir '=https' "$url" -o "artifacts/$platform-$id.apk"
             printf '%s | %s | %s\n' "$platform" "$id" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
           done < builds.tsv
           printf 'Commit: %s\n' "$GITHUB_SHA" > artifacts/BUILD.txt
           jq -r '.[] | [.platform, .id] | @tsv' builds.json >> artifacts/BUILD.txt
           cd artifacts
           shopt -s nullglob
-          files=(*.apk *.ipa)
+          files=(*.apk)
           sha256sum "${files[@]}" > SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
@@ -81,7 +74,7 @@ jobs:
         with:
           name: install-files
           path: artifacts
-      - name: Publish APK and IPA on GitHub Releases
+      - name: Publish APK on GitHub Releases
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -89,7 +82,7 @@ jobs:
         run: |
           cat > notes.md <<'NOTES'
           Android: APK를 내려받아 설치하세요.
-          iOS: IPA는 서명에 포함된 등록 기기에서만 설치 가능합니다. README의 iOS 설치 절차를 확인하세요.
+          iOS 배포는 현재 일시 중지되어 있습니다.
           BUILD.txt에서 소스 커밋과 EAS 빌드 ID, SHA256SUMS에서 파일 해시를 확인할 수 있습니다.
           NOTES
           gh release create "$RELEASE_TAG" artifacts/* --verify-tag --title "$RELEASE_TAG" --notes-file notes.md

@@ -185,6 +185,8 @@ AGENTS.md
 
 ## 11. 빌드 및 배포
 
+- 현재 iOS 배포는 일시 중지한다. GitHub Actions의 수동 실행·main push·태그 배포는 Android APK만 생성한다. iOS 앱 코드와 로컬 빌드 명령은 향후 재개를 위해 유지한다.
+
 - 실사용 검증은 로컬 빌드 또는 GitHub Actions 아티팩트·GitHub Releases로 얻은 릴리스 APK·Ad Hoc IPA를 실제 휴대폰에 설치해 수행한다. Expo Go·개발 서버·에뮬레이터·시뮬레이터는 실사용 테스트에 사용하지 않는다.
 - 실기기 테스트용 파일은 로컬에서도 빌드해 직접 전달할 수 있다. 공식 배포는 GitHub Actions 아티팩트와 GitHub Releases로 한다. Play Store, App Store, TestFlight 제출은 하지 않는다.
 - 로컬 빌드는 `npm run build:android:local` 또는 `npm run build:ios:local`로 실행하며 기존 EAS release 프로필과 서명을 재사용한다. 결과는 `artifacts/`에 저장한다. Android는 Linux/macOS, iOS는 macOS에서 빌드한다.

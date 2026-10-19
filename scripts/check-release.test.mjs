@@ -51,3 +51,14 @@ test('CI 인증 토큰이 없으면 안내하고 중단하며 토큰 값을 출�
   const build = workflow.split('      - name: Build signed install files on EAS\n')[1].split('      - name:')[0];
   assert.ok(build.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));
 });
+
+test('iOS 일시 중지 중에는 모든 GitHub 빌드가 Android만 배포한다', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/build.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /PLATFORM: android/);
+  assert.ok(!workflow.includes('inputs.platform'));
+  assert.ok(workflow.includes('(.platform == "ANDROID")'));
+  assert.ok(!workflow.includes('extension=ipa'));
+  assert.ok(workflow.includes("tags: ['v*']"));
+  assert.ok(workflow.includes('files=(*.apk)'));
+  checkConfig({ ...app, ios: {} }, 'android');
+});
