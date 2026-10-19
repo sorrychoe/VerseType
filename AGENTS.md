@@ -173,6 +173,8 @@ AGENTS.md
 
 ## 9. 작업 규칙
 
+- GitHub 저장소는 `sorrychoe/VerseType`이다. `README.md`에는 사용자 설치·사용 방법만 작성하고 개발·빌드·배포 등 나머지 안내는 `docs/` 내 Markdown에 작성한다.
+
 - 변경 후 반드시 확인: `npm test`(비교 로직), `npm run check:content`, `npx tsc --noEmit`.
 - UI 변경은 빌드된 APK·Ad Hoc IPA를 실제 Android 휴대폰과 iPhone에 설치하여 R1(앱 열면 바로 이달 타이핑), R2(지난달 보고 타이핑·월 버튼·가리기), R5(완료 시에만 출석)를 눈으로 확인한다. 에뮬레이터·시뮬레이터는 테스트에 사용하지 않는다.
 - 자동 테스트·타입 검사·번들 생성 성공은 실기기 검증을 대신하지 않는다. 테스트 결과에는 커밋 SHA, EAS 빌드 ID, 기기 모델, OS 버전, 한글 키보드와 항목별 통과 여부를 기록한다.

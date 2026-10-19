@@ -8,8 +8,7 @@ on:
         default: android
         required: true
   push:
-    branches:
-      - [main] 
+    branches: [main] 
 permissions:
   contents: read
 concurrency:

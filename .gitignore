@@ -1,6 +1,7 @@
 node_modules/
 .expo/
 dist/
+docs/
 .env
 *.tsbuildinfo
 artifacts/
@@ -13,4 +14,3 @@ credentials.json
 *.p8
 *.p12
 *.mobileprovision
-docs/
